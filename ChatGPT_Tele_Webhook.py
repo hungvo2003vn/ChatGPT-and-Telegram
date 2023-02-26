@@ -17,10 +17,12 @@ def index():
 @app.route("/{}".format(secret), methods=["GET", "POST"])
 def receive_message():
     if request.method == "POST":
+
         update = request.get_json()
         chat_id = update["message"]["chat"]["id"]
         message = update["message"]["text"]
         respond_to_message(chat_id, message)
+        
         return "OK"
     else:
         return "This is the receive_message page. Send a POST request to chat with the bot."
