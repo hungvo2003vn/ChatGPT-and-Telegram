@@ -1,4 +1,4 @@
-from flask import Flask, request, render_template
+from flask import Flask, request
 import requests
 import openai
 import Tokens as tk
@@ -42,7 +42,7 @@ def receive_message():
     return str(chat_id) + ": " + message
     
   else:
-    return render_template('index.html')
+    return "Send a POST request to receive message!"
 ###########################################################################
 def respond_to_message(chat_id, message):
 
