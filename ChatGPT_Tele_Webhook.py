@@ -1,52 +1,147 @@
-from flask import Flask, request
+from flask import Flask, request, render_template
 import requests
 import openai
-import Tokens as tks
+import Tokens as tk
+# import re
+# import time
+# import json
+from pymongo import MongoClient
 
-app = Flask(__name__)
+app = Flask('__name__')
 
-openai.api_key = tks.OpenAi
-bot_token = tks.bot_token
-my_url = tks.my_url
-secret = tks.secret
+openai.api_key = tk.OpenAi
+bot_token = tk.bot_token
+CONNECTION_STRING = tk.CONNECTION_STRING
 
-@app.route("/")
-def index():
-    return "This is the index page. Send a POST request to /receive_message to chat with the bot."
+#Get database
+client = MongoClient(CONNECTION_STRING)
+dbname = client['messageDB']
+initialize = {}
 
+###########################################################################
+def check_initDB(chat_id):
+  global initialize
+  chat_id = str(chat_id)
+  
+  if (chat_id not in initialize) or (initialize[chat_id] == False):
+    collection = dbname['messages_'+chat_id]
+    collection.insert_one({"role": "system", "content": "You are a helpful assistant."})
+    initialize[chat_id] = True
+  return
+###########################---MAIN FUNCTION---##################################
 @app.route("/{}".format(secret), methods=["GET", "POST"])
 def receive_message():
-    if request.method == "POST":
-
-        update = request.get_json()
-        chat_id = update["message"]["chat"]["id"]
-        message = update["message"]["text"]
-        respond_to_message(chat_id, message)
-        
-        return "OK"
-    else:
-        return "This is the receive_message page. Send a POST request to chat with the bot."
-
+  if request.method == "POST":
+      
+    update = request.get_json()
+    chat_id = update["message"]["chat"]["id"]
+    message = update["message"]["text"]
+    send_chat_action(chat_id)
+    respond_to_message(chat_id, message)
+      
+    return str(chat_id) + ": " + message
+    
+  else:
+    return render_template('index.html')
+###########################################################################
 def respond_to_message(chat_id, message):
-    response = generate_response(message)
-    send_message(response, chat_id)
 
+  global initialize
+  collection = dbname['messages_'+str(chat_id)]
+  
+  #clear the database
+  if message == '/CLEAR' or message == '/clear':
+    collection.delete_many({})
+    send_message("Delete old conversation successfully!", chat_id)
+    
+    initialize[str(chat_id)] = False
+    check_initDB(chat_id)
+    return
+
+  #Check if the database is not initialized
+  check_initDB(chat_id)
+  
+  #Add user's message to database
+  collection.insert_one({"role": "user", "content": message})
+  
+  #Resonse to message
+  message_log = list(collection.find({}, {'_id': 0}))[-4:] #get 4 latest messages
+  response = generate_response(message_log)
+  send_message(response, chat_id)
+  #send_with_simulation(response, chat_id)
+  
+  #Add chatGPT's response to database
+  collection.insert_one({"role": "assistant", "content": response})
+  return 
+###########################################################################
 def send_message(message, chat_id):
-    requests.post(
-        f"https://api.telegram.org/bot{bot_token}/sendMessage",
-        json={
-            "chat_id": chat_id,
-            "text": message,
-        }
-    )
+  
+  requests.post(
+    f"https://api.telegram.org/bot{bot_token}/sendMessage",
+    json={
+        "chat_id": chat_id,
+        "text": message,
+        "parse_mode": "markdown"
+    }
+  )
+  # msg = json.loads(response.content)['result']
+  # message_id = msg['message_id']
+  # return message_id
+  
+###########################################################################
+def send_chat_action(chat_id):
+  
+  requests.post(
+    f"https://api.telegram.org/bot{bot_token}/sendChatAction",
+    json={
+        "chat_id": chat_id,
+        "action": "typing"
+    }
+  )
+###########################################################################
+def editMessageText(message, chat_id, message_id):
+  requests.post(
+    f"https://api.telegram.org/bot{bot_token}/editMessageText",
+    json={
+        "chat_id": chat_id,
+        "message_id": message_id,
+        "text": message,
+        "parse_mode": "markdown"
+    }
+  )
+###########################################################################
+'''
+def send_with_simulation(message, chat_id):
 
-def generate_response(prompt):
-    response = openai.Completion.create(
-        engine="text-davinci-003",
-        prompt=prompt,
-        max_tokens=1024,
-        n=1,
-        stop=None,
-        temperature=0.5
-    ).choices[0].text
-    return response
+  message_id = send_message("Responding...", chat_id)
+  message = re.findall(r'\S+|\n|\s',message)
+
+  stack_message = ""
+  for word in message:
+    stack_message +=word
+    editMessageText(stack_message, chat_id, message_id)
+    #time.sleep(0.01)
+'''
+###########################################################################
+def generate_response(message_log):
+  
+  try:
+    response = openai.ChatCompletion.create(
+          model="gpt-3.5-turbo",
+          messages = message_log,
+          max_tokens = 250,
+          stop = None,
+          temperature = 0.7
+      )
+    for choice in response.choices:
+      if "text" in choice:
+        return choice.text
+            
+    return response.choices[0].message.content
+    
+  except openai.error.InvalidRequestError as e:
+    return str(e)[-55:]+"\nText '/CLEAR' or '/clear' to clean the old conversation in database!"
+###########################################################################
+if __name__ == "__main__":
+  app.run(host='0.0.0.0', port=8080, threaded = True)
+
