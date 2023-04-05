@@ -5,10 +5,10 @@ Open Telegram messenger, sign in to your account or create a new one.
 1. Enter ***@Botfather*** in the search tab and choose this bot.
   - Click “Start” to activate BotFather bot.
   - In response, you receive a list of commands to manage bots.
-2. Choose or type the ```*/newbot*``` command and send it.
+2. Choose or type the *```/newbot```* command and send it.
 3. Choose a name for your bot — your subscribers will see it in the conversation. And choose a username for your bot — the bot can be found by its username in searches. The username must be unique and end with the word “bot.”
   - After you choose a suitable name for your bot — the bot is created. You will receive a message with a link to your bot t.me/<bot_username>, recommendations to set up a profile picture, description, and a list of commands to manage your new bot.
-4. Send the command ```*/token*``` and copy the bot's token.
+4. Send the command *```/token```* and copy the bot's token.
 ## Set Webhook for the bot
 We use webhook to receive incoming messages instead of making a while loop to wait
 To set the webhook, copy this link and paste on the seaching bar
