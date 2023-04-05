@@ -17,8 +17,8 @@ openai.ChatCompletion.create(
     ]
 )
 ```
-##
-##Response format
+
+###Response format
 An example API response looks as follows:
 ```
 {
