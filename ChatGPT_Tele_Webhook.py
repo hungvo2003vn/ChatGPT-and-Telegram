@@ -11,6 +11,7 @@ app = Flask('__name__')
 
 openai.api_key = tk.OpenAi
 bot_token = tk.bot_token
+secret = tk.secret
 CONNECTION_STRING = tk.CONNECTION_STRING
 
 #Get database
