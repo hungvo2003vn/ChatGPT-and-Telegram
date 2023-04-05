@@ -17,8 +17,7 @@ openai.ChatCompletion.create(
     ]
 )
 ```
-
-###Response format
+## Response format
 An example API response looks as follows:
 ```
 {
@@ -37,5 +36,10 @@ An example API response looks as follows:
    }
   ]
 }
+```
+## How to create and connect to MongoDB
+You can read the destriction on mongodb's official website
+```
+https://www.mongodb.com/docs/atlas/create-connect-deployments/
 ```
 
