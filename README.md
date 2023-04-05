@@ -1,5 +1,5 @@
 # ChatGPT-and-Telegram
-This an API connecting Telegram bot to ChatGPT (using Flask to create Application and Deployed on Pythonanywhere platfrom)
+This an API connecting Telegram bot to ChatGPT
 ## Create a bot on Telegram
 Open Telegram messenger, sign in to your account or create a new one.
 1. Enter ***@Botfather*** in the search tab and choose this bot.
