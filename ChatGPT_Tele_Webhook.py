@@ -32,9 +32,10 @@ def setWebhook():
       "allow_updates": '["message", "edited_message", "channel_post", "edited_channel_post", "callback_query"]'
     }
   )
-  msg.content["url"] = deployment_url
-  msg.content["allow_updates"] = '["message", "edited_message", "channel_post", "edited_channel_post", "callback_query"]'
-  return json.loads(msg.content)
+  msg = json.loads(msg.content)
+  msg["url"] = deployment_url
+  msg["allow_updates"] = '["message", "edited_message", "channel_post", "edited_channel_post", "callback_query"]'
+  return msg
 
 print(setWebhook())
 ###########################################################################
