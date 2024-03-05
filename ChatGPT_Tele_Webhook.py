@@ -6,7 +6,7 @@ import os
 # import Tokens as tk
 # import re
 # import time
-# import json
+import json
 from pymongo import MongoClient
 
 app = Flask('__name__')
@@ -15,6 +15,7 @@ load_dotenv()
 openai.api_key = os.getenv('OpenAi')
 bot_token = os.getenv('bot_token')
 secret = os.getenv('secret')
+deployment_url = os.getenv('deployment_url')
 CONNECTION_STRING = os.getenv('CONNECTION_STRING')
 
 #Get database
@@ -22,6 +23,18 @@ client = MongoClient(CONNECTION_STRING)
 dbname = client['messageDB']
 initialize = {}
 
+###########################---SET WEBHOOK---##################################
+def setWebhook():
+  msg = requests.post(
+    f"https://api.telegram.org/bot{bot_token}/setWebhook",
+    params={
+      "url": deployment_url,
+      "allow_updates": '["message", "edited_message", "channel_post", "edited_channel_post", "callback_query"]'
+    }
+  )
+  return json.loads(msg.content)
+
+print(setWebhook())
 ###########################################################################
 def check_initDB(chat_id):
   global initialize
