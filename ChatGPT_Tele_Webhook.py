@@ -14,7 +14,7 @@ app = Flask('__name__')
 load_dotenv()
 openai.api_key = os.getenv('OpenAi')
 bot_token = os.getenv('bot_token')
-secret = os.getenv('secret')
+# secret = os.getenv('secret')
 deployment_url = os.getenv('deployment_url')
 CONNECTION_STRING = os.getenv('CONNECTION_STRING')
 
@@ -32,6 +32,8 @@ def setWebhook():
       "allow_updates": '["message", "edited_message", "channel_post", "edited_channel_post", "callback_query"]'
     }
   )
+  msg.content["url"] = deployment_url
+  msg.content["allow_updates"] = '["message", "edited_message", "channel_post", "edited_channel_post", "callback_query"]'
   return json.loads(msg.content)
 
 print(setWebhook())
@@ -46,7 +48,7 @@ def check_initDB(chat_id):
     initialize[chat_id] = True
   return
 ###########################---MAIN FUNCTION---##################################
-@app.route("/{}".format(secret), methods=["GET", "POST"])
+@app.route("/{}".format(''), methods=["GET", "POST"])
 def receive_message():
   if request.method == "POST":
 
