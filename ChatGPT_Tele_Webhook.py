@@ -159,7 +159,7 @@ def generate_response(message_log):
             
     return response.choices[0].message.content
     
-  except openai.InvalidRequestError as e:
+  except openai.error.InvalidRequestError as e:
     return str(e)[-55:]+"\nText '/CLEAR' or '/clear' to clean the old conversation in database!"
 ###########################################################################
 if __name__ == "__main__":
