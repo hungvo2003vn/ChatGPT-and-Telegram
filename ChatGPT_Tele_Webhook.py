@@ -147,7 +147,7 @@ def generate_response(message_log):
   
   try:
     response = openai.chat.completions.create(
-          model="gpt-4",
+          model="gpt-3.5-turbo",
           messages = message_log
           # max_tokens = 250,
           # stop = None,
@@ -160,7 +160,7 @@ def generate_response(message_log):
     return response.choices[0].message.content
     
   except openai.OpenAIError as e:
-    return str(e)+"\nText '/CLEAR' or '/clear' to clean the old conversation in database!"
+    return str(e)+"\n\nText '/CLEAR' or '/clear' to clean the old conversation in database!"
 ###########################################################################
 if __name__ == "__main__":
   app.run(host='0.0.0.0', debug=True, port=8080, threaded = True)
