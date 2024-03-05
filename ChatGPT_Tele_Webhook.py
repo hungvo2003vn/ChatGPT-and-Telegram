@@ -1,7 +1,9 @@
 from flask import Flask, request
 import requests
 import openai
-import Tokens as tk
+from dotenv import load_dotenv
+import os
+# import Tokens as tk
 # import re
 # import time
 # import json
@@ -9,10 +11,11 @@ from pymongo import MongoClient
 
 app = Flask('__name__')
 
-openai.api_key = tk.OpenAi
-bot_token = tk.bot_token
-secret = tk.secret
-CONNECTION_STRING = tk.CONNECTION_STRING
+load_dotenv()
+openai.api_key = os.getenv('OpenAi')
+bot_token = os.getenv('bot_token')
+secret = os.getenv('secret')
+CONNECTION_STRING = os.getenv('CONNECTION_STRING')
 
 #Get database
 client = MongoClient(CONNECTION_STRING)
@@ -33,13 +36,13 @@ def check_initDB(chat_id):
 @app.route("/{}".format(secret), methods=["GET", "POST"])
 def receive_message():
   if request.method == "POST":
-      
+
     update = request.get_json()
     chat_id = update["message"]["chat"]["id"]
     message = update["message"]["text"]
     send_chat_action(chat_id)
     respond_to_message(chat_id, message)
-      
+
     return str(chat_id) + ": " + message
     
   else:
@@ -144,5 +147,5 @@ def generate_response(message_log):
     return str(e)[-55:]+"\nText '/CLEAR' or '/clear' to clean the old conversation in database!"
 ###########################################################################
 if __name__ == "__main__":
-  app.run(host='0.0.0.0', port=8080, threaded = True)
+  app.run(host='0.0.0.0', debug=True, port=8080, threaded = True)
 
