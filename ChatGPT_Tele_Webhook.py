@@ -146,20 +146,20 @@ def send_with_simulation(message, chat_id):
 def generate_response(message_log):
   
   try:
-    response = openai.ChatCompletion.create(
-          model="gpt-3.5-turbo",
-          messages = message_log,
-          max_tokens = 250,
-          stop = None,
-          temperature = 0.7
+    response = openai.chat.completions.create(
+          model="gpt-4",
+          messages = message_log
+          # max_tokens = 250,
+          # stop = None,
+          # temperature = 0.7
       )
-    for choice in response.choices:
-      if "text" in choice:
-        return choice.text
+    # for choice in response.choices:
+    #   if "text" in choice:
+    #     return choice.text
             
     return response.choices[0].message.content
     
-  except openai.error.InvalidRequestError as e:
+  except openai.InvalidRequestError as e:
     return str(e)[-55:]+"\nText '/CLEAR' or '/clear' to clean the old conversation in database!"
 ###########################################################################
 if __name__ == "__main__":
